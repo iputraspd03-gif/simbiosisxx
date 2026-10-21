@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Maya Simbiosis - SD Kelas 6 (Fase C)</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+
+        /* Enforce 16:9 aspect ratio responsive container */
+        .aspect-16-9-wrapper {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0f172a;
+            overflow: hidden;
+        }
+
+        .main-stage {
+            width: 100%;
+            height: 100%;
+            max-width: 177.78vh; /* 16:9 ratio */
+            max-height: 56.25vw; /* 16:9 ratio */
+            aspect-ratio: 16 / 9;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Custom scrollbar for inside tab content if needed, but designed to fit without overflow */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-soft {
+            animation: pulse-soft 2s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .tab-btn.active {
+            background-color: #0284c7;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 m-0 p-0 overflow-hidden flex items-center justify-center min-h-screen">
+
+    <div class="aspect-16-9-wrapper">
+        <div id="mainStage" class="main-stage flex flex-col justify-between p-3 sm:p-4 rounded-xl relative border-4 border-slate-700/30">
+
+            <!-- ================= SPLASH SCREEN ================= -->
+            <div id="splashScreen" class="absolute inset-0 z-50 bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700 flex flex-col items-center justify-center p-6 text-white text-center">
+                <div class="animate-float mb-2">
+                    <svg class="w-24 h-24 text-amber-300 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        <circle cx="12" cy="7" r="3" fill="#fef08a"></circle>
+                    </svg>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-wide text-amber-300 drop-shadow-md mb-1 font-heading">
+                    LAB MAYA SIMBIOSIS
+                </h1>
+                <p class="text-base sm:text-lg text-emerald-100 font-semibold mb-6 max-w-lg">
+                    Eksplorasi Interaksi Makhluk Hidup - IPA SD Kelas 6 (Fase C)
+                </p>
+
+                <!-- Loading Bar Indicator -->
+                <div id="loadingBox" class="w-64 bg-emerald-900/50 rounded-full h-4 mb-6 p-0.5 border border-emerald-300/30 overflow-hidden">
+                    <div id="loadingBar" class="bg-gradient-to-r from-amber-400 to-yellow-300 h-full rounded-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- Start Button (Initially hidden until loaded) -->
+                <button id="startBtn" onclick="app.startApp()" class="hidden bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xl sm:text-2xl px-10 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 animate-pulse-soft border-2 border-amber-100">
+                    🚀 MULAI LAB MAYA
+                </button>
+                <p class="text-xs text-emerald-200 mt-4 opacity-80">Dikembangkan untuk Pembelajaran Interaktif SD Fase C</p>
+            </div>
+
+            <!-- ================= HEADER & NAVIGATION ================= -->
+            <header class="flex items-center justify-between bg-white/90 backdrop-blur-md rounded-2xl px-4 py-2 shadow-sm border border-slate-200/60 z-10 h-14">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-emerald-500 text-white p-1.5 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-tight font-heading">LAB SIMBIOSIS</h2>
+                        <p class="text-[10px] text-slate-500 -mt-1 font-semibold">IPAS SD KELAS 6 (FASE C)</p>
+                    </div>
+                </div>
+
+                <!-- Nav Tabs -->
+                <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-100 p-1 rounded-xl">
+                    <button onclick="app.switchTab('teori')" id="tab-teori" class="tab-btn active px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">📚 Teori</button>
+                    <button onclick="app.switchTab('prosedur')" id="tab-prosedur" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">📋 Prosedur</button>
+                    <button onclick="app.switchTab('simulasi')" id="tab-simulasi" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">🔬 Simulasi</button>
+                    <button onclick="app.switchTab('lkpd')" id="tab-lkpd" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">📝 LKPD</button>
+                    <button onclick="app.switchTab('pengembang')" id="tab-pengembang" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">👨‍🏫 Profil</button>
+                </nav>
+
+                <!-- Audio Toggle & Reset -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="audio.toggleMute()" id="muteBtn" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition text-xs font-bold flex items-center gap-1" title="Suara On/Off">
+                        <span id="muteIcon">🔊</span>
+                    </button>
+                    <button onclick="app.resetAll()" class="p-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-xl transition text-xs font-bold flex items-center gap-1" title="Reset Aplikasi">
+                        🔄 <span class="hidden sm:inline">Reset</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ================= MAIN CONTENT AREA ================= -->
+            <main class="flex-1 my-2 relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-md p-3 border border-slate-200/80 shadow-inner flex flex-col">
+                
+                <!-- 1. TAB TEORI -->
+                <section id="content-teori" class="tab-content h-full flex flex-col justify-between space-y-2">
+                    <div class="text-center max-w-2xl mx-auto">
+                        <h3 class="text-lg font-bold text-slate-800 font-heading">Apa itu Simbiosis?</h3>
+                        <p class="text-xs text-slate-600">Simbiosis adalah hubungan timbal balik yang erat antara dua makhluk hidup yang berbeda jenis.</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 flex-1 my-1">
+                        <!-- Mutualisme -->
+                        <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-2.5 flex flex-col items-center justify-between text-center hover:shadow-md transition">
+                            <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Saling Menguntungkan</span>
+                            <div class="w-16 h-16 my-1 bg-white rounded-full p-2 border border-emerald-200 flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <circle cx="35" cy="50" r="20" fill="#f59e0b" />
+                                    <circle cx="65" cy="50" r="20" fill="#10b981" />
+                                    <text x="50" y="55" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">🤝</text>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-emerald-800 text-sm font-heading">Simbiosis Mutualisme</h4>
+                            <p class="text-[11px] text-emerald-900 font-semibold leading-tight mt-0.5">Kedua organisme sama-sama **diuntungkan** (+ / +).</p>
+                            <div class="mt-1 text-[10px] text-slate-500 bg-white/80 px-2 py-1 rounded border border-emerald-100 w-full">
+                                Contoh: Lebah & Bunga, Kerbau & Burung Jalak.
+                            </div>
+                        </div>
+
+                        <!-- Komensalisme -->
+                        <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-2.5 flex flex-col items-center justify-between text-center hover:shadow-md transition">
+                            <span class="bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Satu Untung, Satu Netral</span>
+                            <div class="w-16 h-16 my-1 bg-white rounded-full p-2 border border-sky-200 flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <circle cx="35" cy="50" r="20" fill="#0284c7" />
+                                    <circle cx="65" cy="50" r="20" fill="#94a3b8" />
+                                    <text x="50" y="55" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">🐟</text>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-sky-800 text-sm font-heading">Simbiosis Komensalisme</h4>
+                            <p class="text-[11px] text-sky-900 font-semibold leading-tight mt-0.5">Satu **untung**, yang lain **tidak dirugikan/diuntungkan** (+ / 0).</p>
+                            <div class="mt-1 text-[10px] text-slate-500 bg-white/80 px-2 py-1 rounded border border-sky-100 w-full">
+                                Contoh: Hiu & Remora, Ikan Badut & Anemon.
+                            </div>
+                        </div>
+
+                        <!-- Parasitisme -->
+                        <div class="bg-rose-50 border-2 border-rose-200 rounded-xl p-2.5 flex flex-col items-center justify-between text-center hover:shadow-md transition">
+                            <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Satu Untung, Satu Rugi</span>
+                            <div class="w-16 h-16 my-1 bg-white rounded-full p-2 border border-rose-200 flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <circle cx="35" cy="50" r="20" fill="#f43f5e" />
+                                    <circle cx="65" cy="50" r="20" fill="#64748b" />
+                                    <text x="50" y="55" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">🦟</text>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-rose-800 text-sm font-heading">Simbiosis Parasitisme</h4>
+                            <p class="text-[11px] text-rose-900 font-semibold leading-tight mt-0.5">Satu **untung**, organisme lain **dirugikan** (+ / -).</p>
+                            <div class="mt-1 text-[10px] text-slate-500 bg-white/80 px-2 py-1 rounded border border-rose-100 w-full">
+                                Contoh: Nyamuk & Manusia, Benalu & Pohon Inang.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. TAB PROSEDUR -->
+                <section id="content-prosedur" class="tab-content hidden h-full flex flex-col justify-between">
+                    <h3 class="text-lg font-bold text-slate-800 text-center font-heading">Langkah-Langkah Penggunaan Lab Maya</h3>
+                    <div class="grid grid-cols-4 gap-3 my-auto">
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex flex-col items-center text-center">
+                            <div class="w-8 h-8 bg-amber-500 text-white font-bold rounded-full flex items-center justify-center text-sm mb-2">1</div>
+                            <h4 class="font-bold text-xs text-amber-900 mb-1">Pilih Pasangan</h4>
+                            <p class="text-[11px] text-slate-600">Buka menu **Simulasi**, lalu pilih salah satu pasangan makhluk hidup yang ingin diamati.</p>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl flex flex-col items-center text-center">
+                            <div class="w-8 h-8 bg-blue-500 text-white font-bold rounded-full flex items-center justify-center text-sm mb-2">2</div>
+                            <h4 class="font-bold text-xs text-blue-900 mb-1">Jalankan Simulasi</h4>
+                            <p class="text-[11px] text-slate-600">Klik tombol **Play / Simulasikan** dan atur kecepatan waktu pengamatan.</p>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex flex-col items-center text-center">
+                            <div class="w-8 h-8 bg-emerald-500 text-white font-bold rounded-full flex items-center justify-center text-sm mb-2">3</div>
+                            <h4 class="font-bold text-xs text-emerald-900 mb-1">Amati Indikator</h4>
+                            <p class="text-[11px] text-slate-600">Perhatikan animasi interaksi serta grafik status keuntungan/kerugian masing-masing makhluk hidup.</p>
+                        </div>
+                        <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl flex flex-col items-center text-center">
+                            <div class="w-8 h-8 bg-purple-500 text-white font-bold rounded-full flex items-center justify-center text-sm mb-2">4</div>
+                            <h4 class="font-bold text-xs text-purple-900 mb-1">Kerjakan LKPD</h4>
+                            <p class="text-[11px] text-slate-600">Buka tab **LKPD** untuk menguji pemahamanmu dan raih skor tertinggi!</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-xl text-center text-xs text-slate-600 font-medium">
+                        💡 **Tips:** Gunakan tombol **Reset** jika ingin mengulang simulasi dari awal.
+                    </div>
+                </section>
+
+                <!-- 3. TAB SIMULASI (CORE FEATURE) -->
+                <section id="content-simulasi" class="tab-content hidden h-full flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2 bg-slate-100 p-2 rounded-xl border border-slate-200">
+                        <!-- Select Pair -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-xs font-bold text-slate-700">Pasangan Makhluk Hidup:</label>
+                            <select id="pairSelect" onchange="sim.changePair(this.value)" class="bg-white border border-slate-300 text-slate-800 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <option value="lebah_bunga">🐝 Lebah & 🌸 Bunga (Mutualisme)</option>
+                                <option value="kerbau_jalak">🐃 Kerbau & 🐦 Burung Jalak (Mutualisme)</option>
+                                <option value="hiu_remora">🦈 Hiu & 🐟 Ikan Remora (Komensalisme)</option>
+                                <option value="anemon_clown">🪸 Anemon & 🐠 Ikan Badut (Komensalisme)</option>
+                                <option value="nyamuk_manusia">🦟 Nyamuk & 🧍 Manusia (Parasitisme)</option>
+                                <option value="benalu_pohon">🌿 Benalu & 🌳 Pohon Inang (Parasitisme)</option>
+                            </select>
+                        </div>
+
+                        <!-- Simulation Controls -->
+                        <div class="flex items-center space-x-2">
+                            <button id="playBtn" onclick="sim.togglePlay()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+                                ▶️ Play
+                            </button>
+                            <button onclick="sim.resetSim()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold transition">
+                                🔄 Reset
+                            </button>
+                            <div class="flex items-center space-x-1 pl-2 border-l border-slate-300">
+                                <span class="text-[11px] font-bold text-slate-600">Kecepatan:</span>
+                                <input type="range" id="speedRange" min="1" max="3" value="1" onchange="sim.setSpeed(this.value)" class="w-16 accent-sky-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Interactive Simulation Stage -->
+                    <div class="relative flex-1 my-2 bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 rounded-xl overflow-hidden border border-slate-300 shadow-inner flex items-center justify-center">
+                        <canvas id="simCanvas" class="w-full h-full block"></canvas>
+                        
+                        <!-- Overlay Status Text -->
+                        <div id="simStatusOverlay" class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm text-xs max-w-xs pointer-events-none">
+                            <div class="font-bold text-slate-800" id="simTitle">Lebah & Bunga</div>
+                            <div class="text-[11px] text-slate-600 leading-tight" id="simDesc">Lebah menghisap nektar, bunga terbantu penyerbukannya.</div>
+                        </div>
+                    </div>
+
+                    <!-- Impact / Status Indicators -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div id="statusOrgA" class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span id="iconOrgA" class="text-2xl">🐝</span>
+                                <div>
+                                    <div id="nameOrgA" class="text-xs font-bold text-slate-800">Lebah</div>
+                                    <div id="effectOrgA" class="text-[10px] text-emerald-700 font-semibold">Mendapat makanan (Nektar)</div>
+                                </div>
+                            </div>
+                            <span id="badgeOrgA" class="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm">+ UNTUNG</span>
+                        </div>
+
+                        <div id="statusOrgB" class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span id="iconOrgB" class="text-2xl">🌸</span>
+                                <div>
+                                    <div id="nameOrgB" class="text-xs font-bold text-slate-800">Bunga</div>
+                                    <div id="effectOrgB" class="text-[10px] text-emerald-700 font-semibold">Terbantu Penyerbukan</div>
+                                </div>
+                            </div>
+                            <span id="badgeOrgB" class="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm">+ UNTUNG</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. TAB LKPD -->
+                <section id="content-lkpd" class="tab-content hidden h-full flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 font-heading">Lembar Kerja Peserta Didik (LKPD)</h3>
+                            <p class="text-[11px] text-slate-500">Misi Identifikasi Simbiosis & Kuis Interaktif</p>
+                        </div>
+                        <div class="bg-amber-100 text-amber-800 font-extrabold text-xs px-3 py-1 rounded-full border border-amber-300 flex items-center gap-1">
+                            🏆 Skor: <span id="scoreDisplay">0</span> / 100
+                        </div>
+                    </div>
+
+                    <div id="quizContainer" class="flex-1 my-2 overflow-y-auto custom-scrollbar pr-1 flex flex-col justify-between">
+                        <div class="bg-sky-50 border border-sky-200 p-3 rounded-xl">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider" id="quizProgress">Pertanyaan 1 dari 4</span>
+                                <span class="text-xs font-bold text-slate-500" id="quizCategory">Mutualisme</span>
+                            </div>
+                            <h4 id="quizQuestion" class="font-bold text-sm text-slate-800">
+                                Skenario: Seekor kerbau hinggap burung jalak di punggungnya. Burung jalak memakan kutu kerbau. Apa jenis simbiosis ini?
+                            </h4>
+                        </div>
+
+                        <!-- Options -->
+                        <div id="quizOptions" class="grid grid-cols-2 gap-2 my-2">
+                            <!-- Options JS Generated -->
+                        </div>
+
+                        <!-- Feedback Message Box -->
+                        <div id="quizFeedback" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border transition-all"></div>
+                    </div>
+
+                    <!-- Reset Quiz Button -->
+                    <div class="flex justify-end pt-1">
+                        <button onclick="quiz.resetQuiz()" class="text-xs text-slate-500 hover:text-slate-800 underline font-semibold">Ulangi LKPD</button>
+                    </div>
+                </section>
+
+                <!-- 5. TAB PENGEMBANG -->
+                <section id="content-pengembang" class="tab-content hidden h-full flex flex-col justify-between">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 rounded-xl shadow-sm flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold font-heading">Profil Pengembang</h3>
+                            <p class="text-xs text-emerald-100">Lab Maya Interaktif Pembelajaran IPAS SD Kelas 6 Fase C</p>
+                        </div>
+                        <span class="text-3xl">👨‍🏫</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 my-auto">
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                                ADP
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">I Kadek Adhi Dharm Putra</h4>
+                                <p class="text-xs text-emerald-600 font-semibold">Pengembang Media & Guru SD Kelas 6</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Spesialis Instructional Design & Pengembang Lab Maya Interaktif untuk Sekolah Dasar (Fase C).</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex flex-col justify-center">
+                            <h4 class="font-bold text-slate-800 text-xs mb-1">Informasi Aplikasi & Media:</h4>
+                            <ul class="text-[11px] text-slate-600 space-y-0.5">
+                                <li>📌 **Materi:** Simbiosis Makhluk Hidup (Mutualisme, Komensalisme, Parasitisme)</li>
+                                <li>🎯 **Target:** Kurikulum Merdeka SD Kelas 6 (Fase C)</li>
+                                <li>💻 **Sistem:** Standalone Full Offline (HTML5, SVG, Canvas & Web Audio API)</li>
+                                <li>📱 **Kompatibilitas:** Responsive Layout 16:9 (HP, Tablet, Desktop)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl text-center text-xs text-emerald-800 font-semibold">
+                        "Mewujudkan Pembelajaran Sains yang Fun, Visual, dan Interaktif untuk Peserta Didik Sekolah Dasar."
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- FOOTER STATUS BAR -->
+            <footer class="flex items-center justify-between text-[11px] text-slate-500 px-2 h-5">
+                <div>Lab Maya IPAS SD © I Kadek Adhi Dharm Putra</div>
+                <div class="flex items-center space-x-3">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Standalone Offline</span>
+                    <span>Format 16:9 Fit Screen</span>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* ================= AUDIO SYNTHESIZER (WEB AUDIO API) ================= */
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playClick() {
+                if (this.isMuted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playSuccess() {
+                if (this.isMuted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now); // A4
+                osc.frequency.setValueAtTime(554.37, now + 0.1); // C#5
+                osc.frequency.setValueAtTime(659.25, now + 0.2); // E5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.35);
+            }
+
+            playWrong() {
+                if (this.isMuted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.2);
+            }
+
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                document.getElementById('muteIcon').innerText = this.isMuted ? '🔇' : '🔊';
+            }
+        }
+
+        const audio = new SoundEffects();
+
+        /* ================= APP & NAVIGATION CONTROLLER ================= */
+        class AppController {
+            constructor() {
+                this.currentTab = 'teori';
+            }
+
+            initLoading() {
+                let progress = 0;
+                const loadingBar = document.getElementById('loadingBar');
+                const startBtn = document.getElementById('startBtn');
+                const loadingBox = document.getElementById('loadingBox');
+
+                const interval = setInterval(() => {
+                    progress += 15;
+                    loadingBar.style.width = `${progress}%`;
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            loadingBox.classList.add('hidden');
+                            startBtn.classList.remove('hidden');
+                        }, 200);
+                    }
+                }, 100);
+            }
+
+            startApp() {
+                audio.playSuccess();
+                document.getElementById('splashScreen').style.display = 'none';
+                sim.initCanvas();
+            }
+
+            switchTab(tabName) {
+                audio.playClick();
+                this.currentTab = tabName;
+
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+
+                // Update content visibility
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+                if (tabName === 'simulasi') {
+                    sim.resizeCanvas();
+                }
+            }
+
+            resetAll() {
+                audio.playClick();
+                sim.resetSim();
+                quiz.resetQuiz();
+                this.switchTab('teori');
+            }
+        }
+
+        /* ================= SIMULATION CONTROLLER (CANVAS ANIMATIONS) ================= */
+        class SimulationController {
+            constructor() {
+                this.canvas = null;
+                this.ctx = null;
+                this.isPlaying = false;
+                this.currentPair = 'lebah_bunga';
+                this.speed = 1;
+                this.animFrame = null;
+                this.t = 0;
+
+                this.pairData = {
+                    'lebah_bunga': {
+                        title: "🐝 Lebah & 🌸 Bunga (Simbiosis Mutualisme)",
+                        desc: "Lebah hinggap mengambil nektar manis, sedangkan Bunga terbantu proses penyerbukannya oleh serbuk sari yang terbawa lebah.",
+                        orgA: { name: "Lebah", icon: "🐝", effect: "Mendapat Makanan (Nektar)", type: "plus" },
+                        orgB: { name: "Bunga", icon: "🌸", effect: "Terbantu Penyerbukan", type: "plus" }
+                    },
+                    'kerbau_jalak': {
+                        title: "🐃 Kerbau & 🐦 Burung Jalak (Simbiosis Mutualisme)",
+                        desc: "Burung Jalak memakan kutu di tubuh Kerbau. Kerbau bebas gatal/penyakit, Burung Jalak kenyang.",
+                        orgA: { name: "Burung Jalak", icon: "🐦", effect: "Kenyang Makan Kutu", type: "plus" },
+                        orgB: { name: "Kerbau", icon: "🐃", effect: "Kutu Berkurang & Bebas Gatal", type: "plus" }
+                    },
+                    'hiu_remora': {
+                        title: "🦈 Hiu & 🐟 Ikan Remora (Simbiosis Komensalisme)",
+                        desc: "Ikan Remora berlindung dan memakan sisa makanan Hiu. Hiu tidak merasa terganggu maupun diuntungkan.",
+                        orgA: { name: "Ikan Remora", icon: "🐟", effect: "Perlindungan & Sisa Makanan", type: "plus" },
+                        orgB: { name: "Ikan Hiu", icon: "🦈", effect: "Tidak Terpengaruh (Netral)", type: "neutral" }
+                    },
+                    'anemon_clown': {
+                        title: "🪸 Anemon & 🐠 Ikan Badut (Simbiosis Komensalisme)",
+                        desc: "Ikan Badut bersembunyi di sengat Anemon dari pemangsa. Anemon tidak dirugikan maupun diuntungkan.",
+                        orgA: { name: "Ikan Badut", icon: "🐠", effect: "Aman dari Pemangsa", type: "plus" },
+                        orgB: { name: "Anemon Laut", icon: "🪸", effect: "Tidak Terpengaruh (Netral)", type: "neutral" }
+                    },
+                    'nyamuk_manusia': {
+                        title: "🦟 Nyamuk & 🧍 Manusia (Simbiosis Parasitisme)",
+                        desc: "Nyamuk mengisap darah Manusia untuk berkembang biak. Manusia merasa gatal, bentol, dan berisiko terkena penyakit.",
+                        orgA: { name: "Nyamuk", icon: "🦟", effect: "Mendapat Darah & Nutrisi", type: "plus" },
+                        orgB: { name: "Manusia", icon: "🧍", effect: "Gatal, Bentol & Berpenyakit", type: "minus" }
+                    },
+                    'benalu_pohon': {
+                        title: "🌿 Benalu & 🌳 Pohon Inang (Simbiosis Parasitisme)",
+                        desc: "Benalu menyerap air dan hara langsung dari batang Pohon. Pohon inang kekurangan nutrisi dan bisa kurus/mati.",
+                        orgA: { name: "Benalu", icon: "🌿", effect: "Mengambil Air & Nutrisi", type: "plus" },
+                        orgB: { name: "Pohon Inang", icon: "🌳", effect: "Kekurangan Nutrisi & Kurus", type: "minus" }
+                    }
+                };
+            }
+
+            initCanvas() {
+                this.canvas = document.getElementById('simCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                this.updateUI();
+                this.render();
+            }
+
+            resizeCanvas() {
+                if (!this.canvas) return;
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+
+            changePair(pairKey) {
+                audio.playClick();
+                this.currentPair = pairKey;
+                this.t = 0;
+                this.updateUI();
+            }
+
+            setSpeed(val) {
+                this.speed = parseFloat(val);
+            }
+
+            togglePlay() {
+                audio.playClick();
+                this.isPlaying = !this.isPlaying;
+                const playBtn = document.getElementById('playBtn');
+                playBtn.innerHTML = this.isPlaying ? '⏸️ Pause' : '▶️ Play';
+                if (this.isPlaying) {
+                    this.loop();
+                } else {
+                    cancelAnimationFrame(this.animFrame);
+                }
+            }
+
+            resetSim() {
+                this.isPlaying = false;
+                this.t = 0;
+                document.getElementById('playBtn').innerHTML = '▶️ Play';
+                cancelAnimationFrame(this.animFrame);
+                this.render();
+            }
+
+            updateUI() {
+                const data = this.pairData[this.currentPair];
+                document.getElementById('simTitle').innerText = data.title;
+                document.getElementById('simDesc').innerText = data.desc;
+
+                // Update Org A
+                document.getElementById('iconOrgA').innerText = data.orgA.icon;
+                document.getElementById('nameOrgA').innerText = data.orgA.name;
+                document.getElementById('effectOrgA').innerText = data.orgA.effect;
+                this.setBadge('badgeOrgA', 'statusOrgA', data.orgA.type);
+
+                // Update Org B
+                document.getElementById('iconOrgB').innerText = data.orgB.icon;
+                document.getElementById('nameOrgB').innerText = data.orgB.name;
+                document.getElementById('effectOrgB').innerText = data.orgB.effect;
+                this.setBadge('badgeOrgB', 'statusOrgB', data.orgB.type);
+            }
+
+            setBadge(badgeId, boxId, type) {
+                const badge = document.getElementById(badgeId);
+                const box = document.getElementById(boxId);
+
+                if (type === 'plus') {
+                    badge.className = "bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm";
+                    badge.innerText = "+ UNTUNG";
+                    box.className = "bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex items-center justify-between";
+                } else if (type === 'neutral') {
+                    badge.className = "bg-slate-400 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm";
+                    badge.innerText = "0 NETRAL";
+                    box.className = "bg-slate-50 border border-slate-200 p-2 rounded-xl flex items-center justify-between";
+                } else if (type === 'minus') {
+                    badge.className = "bg-rose-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm";
+                    badge.innerText = "- RUGI";
+                    box.className = "bg-rose-50 border border-rose-200 p-2 rounded-xl flex items-center justify-between";
+                }
+            }
+
+            loop() {
+                if (!this.isPlaying) return;
+                this.t += 0.03 * this.speed;
+                this.render();
+                this.animFrame = requestAnimationFrame(() => this.loop());
+            }
+
+            render() {
+                if (!this.ctx) return;
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                this.ctx.clearRect(0, 0, w, h);
+
+                // Render Background & Elements based on selection
+                switch (this.currentPair) {
+                    case 'lebah_bunga':
+                        this.drawLebahBunga(w, h);
+                        break;
+                    case 'kerbau_jalak':
+                        this.drawKerbauJalak(w, h);
+                        break;
+                    case 'hiu_remora':
+                        this.drawHiuRemora(w, h);
+                        break;
+                    case 'anemon_clown':
+                        this.drawAnemonClown(w, h);
+                        break;
+                    case 'nyamuk_manusia':
+                        this.drawNyamukManusia(w, h);
+                        break;
+                    case 'benalu_pohon':
+                        this.drawBenaluPohon(w, h);
+                        break;
+                }
+            }
+
+            // --- ANIMATION DRAWINGS ---
+            drawLebahBunga(w, h) {
+                // Flower
+                this.ctx.font = `${h * 0.4}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🌸", w * 0.7, h * 0.6);
+
+                // Flying Bee moving in figure-8 loop towards flower
+                const bx = w * 0.3 + Math.sin(this.t) * (w * 0.35);
+                const by = h * 0.5 + Math.sin(this.t * 2) * (h * 0.2);
+                
+                this.ctx.font = `${h * 0.2}px serif`;
+                this.ctx.fillText("🐝", bx, by);
+
+                // Pollen particles floating
+                if (Math.abs(bx - w * 0.7) < 80) {
+                    this.ctx.fillStyle = "#f59e0b";
+                    for (let i = 0; i < 5; i++) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(w * 0.7 + (Math.random() - 0.5) * 60, h * 0.5 + (Math.random() - 0.5) * 60, 4, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+            }
+
+            drawKerbauJalak(w, h) {
+                // Buffalo
+                this.ctx.font = `${h * 0.45}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🐃", w * 0.5, h * 0.6);
+
+                // Bird hopping on buffalo back
+                const hopY = Math.abs(Math.sin(this.t * 3)) * 25;
+                const bx = w * 0.4 + Math.cos(this.t) * 80;
+                
+                this.ctx.font = `${h * 0.15}px serif`;
+                this.ctx.fillText("🐦", bx, h * 0.45 - hopY);
+
+                // Flea/Kutu eaten
+                this.ctx.fillStyle = "#475569";
+                this.ctx.beginPath();
+                this.ctx.arc(bx + 10, h * 0.5, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawHiuRemora(w, h) {
+                // Swimming Shark
+                const sx = w * 0.5 + Math.sin(this.t) * 40;
+                this.ctx.font = `${h * 0.45}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🦈", sx, h * 0.5);
+
+                // Remora Fish swimming closely underneath
+                this.ctx.font = `${h * 0.15}px serif`;
+                this.ctx.fillText("🐟", sx - 30, h * 0.65);
+                this.ctx.fillText("🐟", sx + 40, h * 0.68);
+            }
+
+            drawAnemonClown(w, h) {
+                // Sea Anemone
+                this.ctx.font = `${h * 0.4}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🪸", w * 0.5, h * 0.6);
+
+                // Clownfish hiding in anemone tentacles
+                const fx = w * 0.5 + Math.sin(this.t * 2) * 35;
+                const fy = h * 0.58 + Math.cos(this.t * 2) * 15;
+                this.ctx.font = `${h * 0.18}px serif`;
+                this.ctx.fillText("🐠", fx, fy);
+            }
+
+            drawNyamukManusia(w, h) {
+                // Human Arm / Figure
+                this.ctx.font = `${h * 0.45}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🧍", w * 0.6, h * 0.55);
+
+                // Mosquito approaching & biting
+                const bite = Math.sin(this.t) > 0;
+                const mx = bite ? w * 0.52 : w * 0.3;
+                const my = bite ? h * 0.5 : h * 0.3;
+
+                this.ctx.font = `${h * 0.18}px serif`;
+                this.ctx.fillText("🦟", mx, my);
+
+                // Itchy red mark on human when bitten
+                if (bite) {
+                    this.ctx.fillStyle = "rgba(244, 63, 94, 0.6)";
+                    this.ctx.beginPath();
+                    this.ctx.arc(w * 0.58, h * 0.52, 18, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            drawBenaluPohon(w, h) {
+                // Host Tree
+                this.ctx.font = `${h * 0.5}px serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText("🌳", w * 0.5, h * 0.55);
+
+                // Parasite Plant (Benalu) growing on branch
+                this.ctx.font = `${h * 0.2}px serif`;
+                this.ctx.fillText("🌿", w * 0.58, h * 0.4);
+
+                // Energy/Nutrient drain animation particles from tree to benalu
+                const progress = (this.t * 2) % 1;
+                const px = w * 0.52 + progress * (w * 0.06);
+                const py = h * 0.5 - progress * (h * 0.1);
+
+                this.ctx.fillStyle = "#ef4444";
+                this.ctx.beginPath();
+                this.ctx.arc(px, py, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+
+        /* ================= LKPD / QUIZ CONTROLLER ================= */
+        class QuizController {
+            constructor() {
+                this.score = 0;
+                this.currentIndex = 0;
+
+                this.questions = [
+                    {
+                        q: "Seekor lebah hinggap pada bunga untuk mengambil nektar. Tanpa disadari, lebah membantu membawa serbuk sari ke bunga lain. Jenis simbiosis ini adalah...",
+                        options: ["Mutualisme", "Komensalisme", "Parasitisme", "Predasi"],
+                        answer: 0,
+                        feedback: "Benar! 🎉 Keduanya untung (Lebah dapat makanan, Bunga terbantu penyerbukan)."
+                    },
+                    {
+                        q: "Ikan Remora selalu berenang dekat dengan Ikan Hiu untuk mendapat sisa makanan dan perlindungan. Hiu tidak merasa terganggu. Jenis simbiosis ini adalah...",
+                        options: ["Mutualisme", "Komensalisme", "Parasitisme", "Kompetisi"],
+                        answer: 1,
+                        feedback: "Tepat sekali! 🐟 Remora untung, sedangkan Hiu tidak rugi dan tidak untung (Netral)."
+                    },
+                    {
+                        q: "Nyamuk menggigit kulit manusia untuk menghisap darah. Manusia merasa gatal dan dapat tertular penyakit. Hubungan ini termasuk...",
+                        options: ["Mutualisme", "Komensalisme", "Parasitisme", "Netralisme"],
+                        answer: 2,
+                        feedback: "Hebat! 🦟 Nyamuk diuntungkan, sedangkan Manusia dirugikan."
+                    },
+                    {
+                        q: "Tanaman benalu tumbuh dan menempel di batang pohon mangga, lalu menyerap air dan zat hara milik pohon tersebut. Akibatnya pohon mangga...",
+                        options: ["Tumbuh semakin subur", "Dirugikan karena kekurangan nutrisi", "Tidak terpengaruh sama sekali", "Mendapat cadangan air"],
+                        answer: 1,
+                        feedback: "Pintar! 🌿 Benalu adalah parasit yang merugikan pohon inangnya."
+                    }
+                ];
+            }
+
+            renderQuestion() {
+                const current = this.questions[this.currentIndex];
+                document.getElementById('quizProgress').innerText = `Pertanyaan ${this.currentIndex + 1} dari ${this.questions.length}`;
+                document.getElementById('quizQuestion').innerText = current.q;
+                
+                const optionsContainer = document.getElementById('quizOptions');
+                optionsContainer.innerHTML = '';
+
+                current.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-white hover:bg-sky-50 border-2 border-slate-200 hover:border-sky-400 text-slate-800 text-xs font-bold py-2 px-3 rounded-xl transition text-left shadow-sm flex items-center justify-between";
+                    btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span>`;
+                    btn.onclick = () => this.checkAnswer(idx);
+                    optionsContainer.appendChild(btn);
+                });
+
+                document.getElementById('quizFeedback').classList.add('hidden');
+            }
+
+            checkAnswer(selectedIdx) {
+                const current = this.questions[this.currentIndex];
+                const feedbackEl = document.getElementById('quizFeedback');
+                feedbackEl.classList.remove('hidden');
+
+                if (selectedIdx === current.answer) {
+                    audio.playSuccess();
+                    this.score += 25;
+                    document.getElementById('scoreDisplay').innerText = this.score;
+                    feedbackEl.className = "p-2.5 rounded-xl text-xs font-bold text-center border bg-emerald-100 text-emerald-800 border-emerald-300";
+                    feedbackEl.innerText = current.feedback;
+                } else {
+                    audio.playWrong();
+                    feedbackEl.className = "p-2.5 rounded-xl text-xs font-bold text-center border bg-rose-100 text-rose-800 border-rose-300";
+                    feedbackEl.innerText = "Kurang tepat. Coba amati kembali simulasi pada tab Simulasi!";
+                }
+
+                // Next Question delay
+                setTimeout(() => {
+                    if (this.currentIndex < this.questions.length - 1) {
+                        this.currentIndex++;
+                        this.renderQuestion();
+                    } else {
+                        this.showFinalResult();
+                    }
+                }, 2000);
+            }
+
+            showFinalResult() {
+                const quizContainer = document.getElementById('quizContainer');
+                quizContainer.innerHTML = `
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 p-4 rounded-2xl text-center my-auto shadow-md">
+                        <div class="text-4xl mb-2">🎉</div>
+                        <h4 class="text-lg font-bold text-amber-900 font-heading">LKPD Selesai!</h4>
+                        <p class="text-xs text-slate-600 mb-3">Kamu telah menyelesaikan seluruh misi pengamatan simbiosis.</p>
+                        <div class="inline-block bg-amber-400 text-slate-900 font-extrabold text-2xl px-6 py-2 rounded-full shadow border-2 border-amber-200 mb-2">
+                            Skor Akhir: ${this.score} / 100
+                        </div>
+                        <p class="text-xs text-emerald-700 font-bold mt-2">
+                            ${this.score >= 75 ? "Luar biasa! Kamu sangat memahami Simbiosis Makhluk Hidup!" : "Bagus! Terus berlatih dan eksplorasi simulasi kembali ya!"}
+                        </p>
+                    </div>
+                `;
+            }
+
+            resetQuiz() {
+                this.score = 0;
+                this.currentIndex = 0;
+                document.getElementById('scoreDisplay').innerText = '0';
+                
+                // Restore original HTML layout for Quiz
+                const quizContainer = document.getElementById('quizContainer');
+                quizContainer.innerHTML = `
+                    <div class="bg-sky-50 border border-sky-200 p-3 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider" id="quizProgress">Pertanyaan 1 dari 4</span>
+                            <span class="text-xs font-bold text-slate-500" id="quizCategory">Simbiosis IPAS</span>
+                        </div>
+                        <h4 id="quizQuestion" class="font-bold text-sm text-slate-800">
+                            Pertanyaan...
+                        </h4>
+                    </div>
+                    <div id="quizOptions" class="grid grid-cols-2 gap-2 my-2"></div>
+                    <div id="quizFeedback" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border transition-all"></div>
+                `;
+                this.renderQuestion();
+            }
+        }
+
+        /* Initialize Instances */
+        const app = new AppController();
+        const sim = new SimulationController();
+        const quiz = new QuizController();
+
+        window.onload = () => {
+            app.initLoading();
+            quiz.renderQuestion();
+        };
+    </script>
+</body>
+</html>
